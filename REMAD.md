@@ -1,0 +1,4 @@
+LCD && TP TEST ITEMS
+
+(1)REBOOT test
+(2)ITO test
