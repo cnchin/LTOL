@@ -25,3 +25,7 @@ git push -u origin main
 
 /*adb connect yeshei*/
 adb connect 127.0.0.1:62001
+
+
+/* adb shell */
+log(shell("ls").result);
