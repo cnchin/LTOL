@@ -22,3 +22,6 @@ git remote add origin git@github.com:cnchin/LTOL.git
 git branch -M main
 git push -u origin main
 */
+
+/*adb connect yeshei*/
+adb connect 127.0.0.1:62001
