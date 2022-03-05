@@ -23,6 +23,11 @@ ui.layout(
             <button id="stop" text="暂停" textSize="20" textColor="#fffef9" textStyle="bold" bg="#51c4d3" marginLeft="20"/>
             <button id="cancel" text="取消" textSize="20" textColor="#fffef9" textStyle="bold" bg="#51c4d3" marginLeft="20"/>
         </horizontal>
+
+        <vertical marginTop="20" marginLeft="20">
+            <text id="info" textColor="red"/>
+        </vertical>
+        
     </vertical>
 )
 
@@ -107,6 +112,8 @@ function prepareTest(){
 
 function startTest() {
     toast("开始测试");
+    itoTest(itoNum);
+    rebootTest(rebootNum);
 }
 
 function stopTest() {
@@ -118,6 +125,45 @@ function overTest() {
     // clearInterval(testId);
     // testId = null;
 }
+
+
+function itoTest(num) {
+    toast("ito测试"+num);
+    var itoResult = 0;
+    for(var i=0;i<num;i++){
+        itoResult = shell("cat /sys/devices/platform/tp_wake_switch/factory_check").result;
+        if(itoResult==0){
+            ui.info.text("第"+i+"次ito测试失败\nlog saved /sdcard/itoFail.log");
+            shell("echo dmesg > /sdcard/itoFail.log")
+        }
+    }
+
+
+}
+
+function rebootTest(num) {
+    toast("reboot测试"+num);
+    times.addIntentTask({
+        path:'main.js',
+        action:'android.intent.action.BOOT_COMPLETED'
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 adb shell settings get system screen_off_timeout
