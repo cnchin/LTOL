@@ -98,6 +98,8 @@ function prepareTest(){
         }else{
             itoNum=ui.ito_fre.text();
             toast("容值测试次数"+itoNum);
+            //设置屏幕永不熄屏(除非手动)(24h)
+            device.keepScreenOn(24*3600*1000);
         }
     }
     return true;
@@ -118,7 +120,7 @@ function overTest() {
 }
 
 /*
-
+adb shell settings get system screen_off_timeout
 
     if (ui.progress.getProgress() == 10) {
         ui.progress.setProgress(0);
