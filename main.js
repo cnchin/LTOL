@@ -6,12 +6,12 @@ ui.layout(
             <horizontal gravity="center" marginTop="100">
                 <text text="  " id="reboot_remain" textColor="green"/>
                 <checkbox id="cb_reboot" text="    设置重启测试次数" textColor="#22a2c3" textSize="25" textStyle="bold" marginLeft="10"></checkbox>
-                <input id="cb_reboot_fre" inputType="number" marginLeft="20"/>
+                <input id="cb_reboot_fre" inputType="number" marginLeft="10"/>
             </horizontal>
             <horizontal gravity="center">
                 <text text="  " id="ito_remain" textColor="green"/>
                 <checkbox id="cb_ito" text="    设置容值测试次数" textColor="#22a2c3" textSize="25" textStyle="bold" marginLeft="10"></checkbox>
-                <input id="cb_ito_fre" inputType="number" marginLeft="20"/>
+                <input id="cb_ito_fre" inputType="number" marginLeft="10"/>
             </horizontal>
             <horizontal gravity="right" marginTop="50" marginRight="20">
                 <checkbox id="log" text=" LOG" textColor="#22a2c3" textSize="25" textStyle="bold" marginLeft="10"></checkbox>
@@ -101,6 +101,16 @@ var check_item_verify =function(){
     }
 }
 
+
+//启用按键监听，利用按键上作为测试结束的标志
+var volume_down_down=false
+events.observeKey();
+//监听音量上键按下
+events.onKeyDown("volume_down", function(event){
+    log("音量上键被按下，测试结束");
+    volume_down_down=true;
+});
+
 var reboot_test=function(rb_num){
     
 }
@@ -110,6 +120,10 @@ var clear_setInterval//为了清除定时器
 var ito_test_remain=0
 function ito_test(ito_num){
 
+    if(volume_down_down){
+        alert("ITO测试停止!")
+        clearInterval(clear_setInterval)//音量上按键被按下，则清除定时器
+    }
     var result = shell("cat /sys/devices/platform/tp_wake_switch/factory_check", false);
     log(result);
     if(result.code == 0){
@@ -132,13 +146,20 @@ function ito_test(ito_num){
 }
 
 
-
-ui.start.click(() => {
+var variable_init = function (){
     log(log_checkd)
     if(log_checkd){
         console.show();
     }
     ito_test_remain=0 //每次测试之前必须初始化
+    volume_down_down=false
+}
+
+
+
+ui.start.click(() => {
+
+    variable_init()//变量初始化
     var rb_num=ui.cb_reboot_fre.getText();
     var ito_num=ui.cb_ito_fre.getText();
     var verify=check_item_verify()
@@ -148,6 +169,7 @@ ui.start.click(() => {
             reboot_test(rb_num);
         }
         if(ito_checked){
+        
             clear_setInterval=setInterval(function(){
                 ito_test(ito_num)
             },500);
