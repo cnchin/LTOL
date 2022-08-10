@@ -105,28 +105,32 @@ var reboot_test=function(rb_num){
     
 }
 
-var ito_test=function(ito_num){
-    var ito_test_remain=0
-    while(ito_test_remain<ito_num){
-        var result = shell("cat /sys/devices/platform/tp_wake_switch/factory_check", false);
-        log(result);
-        if(result.code == 0){
-            log("执行成功");
-        }else{
-            toast("执行失败!请打开LOG查看错误信息");
-            break;
-        }
-        log("执行结果 result= "+result.result)
-        if(result.result==1){
-            ito_test_remain++;
-            ui.ito_remain.setText(ito_test_remain+"/"+ito_num+" pass");
-        }else{
-            ito_test_remain++;
-            ui.ito_remain.setText(ito_test_remain+"/"+ito_num+" fail");
-            break;
-        }
+
+var clear_setInterval//为了清除定时器
+var ito_test_remain=0
+function ito_test(ito_num){
+
+    var result = shell("cat /sys/devices/platform/tp_wake_switch/factory_check", false);
+    log(result);
+    if(result.code == 0){
+        log("执行成功");
+    }else{
+        toast("执行失败!请打开LOG查看错误信息");
+        clearInterval(clear_setInterval)
     }
+    log("执行结果 result= "+result.result)
+    if(result.result==1){
+        ito_test_remain++;
+        ui.ito_remain.setText(ito_test_remain+"/"+ito_num+" pass");
+    }else{
+        ito_test_remain++;
+        ui.ito_remain.setText(ito_test_remain+"/"+ito_num+" fail");
+        clearInterval(clear_setInterval)
+    }
+    if(ito_test_remain>=ito_num)
+        clearInterval(clear_setInterval)
 }
+
 
 
 ui.start.click(() => {
@@ -134,6 +138,7 @@ ui.start.click(() => {
     if(log_checkd){
         console.show();
     }
+    ito_test_remain=0 //每次测试之前必须初始化
     var rb_num=ui.cb_reboot_fre.getText();
     var ito_num=ui.cb_ito_fre.getText();
     var verify=check_item_verify()
@@ -143,7 +148,9 @@ ui.start.click(() => {
             reboot_test(rb_num);
         }
         if(ito_checked){
-            ito_test(ito_num);
+            clear_setInterval=setInterval(function(){
+                ito_test(ito_num)
+            },500);
         }
     }else{
         ui.ito_remain.setText(" ");
